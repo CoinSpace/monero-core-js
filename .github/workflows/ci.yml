@@ -1,0 +1,74 @@
+name: Node.js CI
+
+on:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download Boost
+        run: |
+          wget --progress=dot:mega https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.gz
+          mkdir -p ./contrib/boost-sdk
+          tar zxf 'boost_1_76_0.tar.gz' -C './contrib/boost-sdk' --strip-components=1
+      - name: Build Boost
+        run: |
+          docker run --rm -i \
+            --env EMSCRIPTEN=/emsdk/upstream/emscripten \
+            -v $(pwd):/src emscripten/emsdk:2.0.20 ./bin/build-boost-emscripten.sh
+      - name: Build monero-core-js
+        run: |
+          docker run --rm -i \
+            --env EMSCRIPTEN=/emsdk/upstream/emscripten \
+            -v $(pwd):/src emscripten/emsdk:2.0.20 ./bin/build-emcpp.sh
+      - name: Finish
+        run: |
+          cp ./build/MyMoneroCoreCpp_WASM ./monero_utils/MyMoneroCoreCpp_WASM.js
+          cp ./build/MyMoneroCoreCpp_WASM.wasm ./monero_utils/MyMoneroCoreCpp_WASM.wasm
+      - uses: actions/upload-artifact@v2
+        with:
+          name: wasm
+          path: |
+            monero_utils/MyMoneroCoreCpp_WASM.js
+            monero_utils/MyMoneroCoreCpp_WASM.wasm
+
+  test:
+    needs: build
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        node-version: [12, 14]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          name: wasm
+          path: monero_utils
+      - name: Display structure of downloaded files
+        run: ls -R
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      - run: npm test
+
+  publish:
+    needs: test
+    runs-on: ubuntu-18.04
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
+        with:
+          name: wasm
+          path: monero_utils
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          registry-url: https://npm.pkg.github.com/
+      - run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}

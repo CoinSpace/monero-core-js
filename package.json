@@ -1,0 +1,19 @@
+{
+  "name": "@coinspace/monero-core-js",
+  "version": "0.0.1",
+  "description": "The JS library containing the Monero crypto plus lightweight wallet functions",
+  "author": "Coin Crypto Wallet <support@coin.space> (https://coin.space/)",
+  "license": "MIT",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CoinSpace/monero-core-js.git"
+  },
+  "scripts": {
+    "test": "mocha -- ./tests/ --timeout 30000"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "mocha": "^8.4.0"
+  }
+}

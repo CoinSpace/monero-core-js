@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+mkdir -p build;
+
+cd build && 
+cmake  .. &&
+cmake --build . &&
+CTEST_OUTPUT_ON_FAILURE=1 ctest -VV
