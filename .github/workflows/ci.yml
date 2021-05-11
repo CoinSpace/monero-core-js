@@ -46,8 +46,6 @@ jobs:
         with:
           name: wasm
           path: monero_utils
-      - name: Display structure of downloaded files
-        run: ls -R
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
