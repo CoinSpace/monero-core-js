@@ -31,15 +31,35 @@
 // Modified to add RingCT support by luigi1111 (2017)
 //
 // v--- These should maybe be injected into a context and supplied to currencyConfig for future platforms
-const JSBigInt = require("../cryptonote_utils/biginteger").BigInteger;
-const nettype_utils = require("../cryptonote_utils/nettype");
 //
-const MyMoneroCoreBridgeEssentialsClass = require('./MyMoneroCoreBridgeEssentialsClass')
-const MyMoneroBridge_utils = require('./MyMoneroBridge_utils')
-//
+const network_type = {
+	MAINNET: 0,
+	TESTNET: 1,
+	STAGENET: 2,
+	FAKECHAIN: 3,
+	UNDEFINED: 4
+};
+
+function nettype_to_API_string(nettype)
+{
+	switch (nettype) {
+		case network_type.MAINNET:
+			return "MAINNET"
+		case network_type.TESTNET:
+			return "TESTNET"
+		case network_type.STAGENET:
+			return "STAGENET"
+		case network_type.FAKECHAIN:
+			return "FAKECHAIN"
+		case network_type.UNDEFINED:
+			return "UNDEFINED"
+	}
+	throw "Unrecognized nettype"
+}
+
 function bridge_sanitized__spendable_out(raw__out)
 {
-	const sanitary__output = 
+	const sanitary__output =
 	{
 		amount: raw__out.amount.toString(),
 		public_key: raw__out.public_key,
@@ -53,223 +73,13 @@ function bridge_sanitized__spendable_out(raw__out)
 	return sanitary__output;
 }
 //
-class MyMoneroCoreBridgeClass extends MyMoneroCoreBridgeEssentialsClass
+class MyMoneroCoreBridgeClass
 {
 	constructor(this_Module)
 	{
-		super(this_Module);
+    this.Module = this_Module;
 		//
 		this._register_async_cb_fns__send_funds();
-	}
-	//
-	// 
-	generate_key_derivation(
-		pub,
-		sec
-	) {
-		const args =
-		{
-			pub: pub,
-			sec: sec,
-		};
-		const args_str = JSON.stringify(args);
-		const ret_string = this.Module.generate_key_derivation(args_str);
-		const ret = JSON.parse(ret_string);
-		if (typeof ret.err_msg !== 'undefined' && ret.err_msg) {
-			throw ret.err_msg;
-		}
-		return ret.retVal;
-	}
-	derive_public_key(derivation, out_index, pub) // TODO: fix legacy interface here by moving out_index to last arg pos
-	{
-		if (typeof pub === 'undefined' || pub === "" || pub === null) {
-			throw "Missing pub arg (arg pos idx 2)";
-		}
-		if (typeof out_index === 'undefined' || out_index === "" || out_index === null) {
-			throw "Missing out_index arg (arg pos idx 1)";
-		}
-		const args =
-		{
-			pub: pub,
-			derivation: derivation, 
-			out_index: ""+out_index,
-		};
-		const args_str = JSON.stringify(args);
-		const ret_string = this.Module.derive_public_key(args_str);
-		const ret = JSON.parse(ret_string);
-		if (typeof ret.err_msg !== 'undefined' && ret.err_msg) {
-			throw ret.err_msg;
-		}
-		return ret.retVal;
-	}
-	derive_subaddress_public_key(
-		output_key,
-		derivation, 
-		out_index
-	) {
-		if (typeof out_index === 'undefined' || out_index === "" || out_index === null) {
-			throw "Missing out_index arg (arg pos idx 2)";
-		}
-		const args =
-		{
-			output_key: output_key,
-			derivation: derivation,
-			out_index: "" + out_index, // must be passed as string
-		};
-		const args_str = JSON.stringify(args);
-		const ret_string = this.Module.derive_subaddress_public_key(args_str);
-		const ret = JSON.parse(ret_string);
-		if (typeof ret.err_msg !== 'undefined' && ret.err_msg) {
-			throw ret.err_msg;
-		}
-		return ret.retVal;		
-	}
-	derivation_to_scalar(derivation, output_index)
-	{
-		const args =
-		{
-			derivation: derivation,
-			output_index: output_index,
-		};
-		const args_str = JSON.stringify(args);
-		const ret_string = this.Module.derivation_to_scalar(args_str);
-		const ret = JSON.parse(ret_string);
-		if (typeof ret.err_msg !== 'undefined' && ret.err_msg) {
-			throw ret.err_msg;
-		}
-		return ret.retVal;
-	}
-	decodeRct(rv, sk, i)
-	{
-		const ecdhInfo = []; // should obvs be plural but just keeping exact names in-tact
-		for (var j = 0 ; j < rv.outPk.length ; j++) {
-			var this_ecdhInfo = rv.ecdhInfo[j];
-			ecdhInfo.push({
-				mask: this_ecdhInfo.mask,
-				amount: this_ecdhInfo.amount
-			})
-		}
-		const outPk = [];
-		for (var j = 0 ; j < rv.outPk.length ; j++) {
-			var this_outPk_mask = null;
-			var this_outPk = rv.outPk[j];
-			if (typeof this_outPk === 'string') {
-				this_outPk_mask = this_outPk;
-			} else if (typeof this_outPk === "object") {
-				this_outPk_mask = this_outPk.mask; 
-			}
-			if (this_outPk_mask == null) {
-				throw "Couldn't locate outPk mask value";
-			}
-			outPk.push({
-				mask: this_outPk_mask
-			})
-		}
-		const args =
-		{
-			i: "" + i,  // must be passed as string
-			sk: sk,
-			rv: {
-				type: "" + rv.type/*must be string*/, // e.g. 1, 3 ... corresponding to rct::RCTType* in rctSigs.cpp
-				ecdhInfo: ecdhInfo,
-				outPk: outPk
-			}
-		};
-		const args_str = JSON.stringify(args);
-		const ret_string = this.Module.decodeRct(args_str);
-		const ret = JSON.parse(ret_string);
-		if (typeof ret.err_msg !== 'undefined' && ret.err_msg) {
-			throw ret.err_msg
-		}
-		return { // calling these out so as to provide a stable ret val interface
-			amount: ret.amount, // string
-			mask: ret.mask,
-		};
-	}
-	decodeRctSimple(rv, sk, i)
-	{
-		const ecdhInfo = []; // should obvs be plural but just keeping exact names in-tact
-		for (var j = 0 ; j < rv.outPk.length ; j++) {
-			var this_ecdhInfo = rv.ecdhInfo[j];
-			ecdhInfo.push({
-				mask: this_ecdhInfo.mask,
-				amount: this_ecdhInfo.amount
-			})
-		}
-		const outPk = [];
-		for (var j = 0 ; j < rv.outPk.length ; j++) {
-			var this_outPk_mask = null;
-			var this_outPk = rv.outPk[j];
-			if (typeof this_outPk === 'string') {
-				this_outPk_mask = this_outPk;
-			} else if (typeof this_outPk === "object") {
-				this_outPk_mask = this_outPk.mask; 
-			}
-			if (this_outPk_mask == null) {
-				throw "Couldn't locate outPk mask value";
-			}
-			outPk.push({
-				mask: this_outPk_mask
-			})
-		}
-		const args =
-		{
-			i: "" + i,  // must be passed as string
-			sk: sk,
-			rv: {
-				type: "" + rv.type/*must be string*/, // e.g. 1, 3 ... corresponding to rct::RCTType* in rctSigs.cpp
-				ecdhInfo: ecdhInfo,
-				outPk: outPk
-			}
-		};
-		const args_str = JSON.stringify(args);
-		const ret_string = this.Module.decodeRctSimple(args_str);
-		const ret = JSON.parse(ret_string);
-		if (typeof ret.err_msg !== 'undefined' && ret.err_msg) {
-			throw ret.err_msg;
-		}
-		return { // calling these out so as to provide a stable ret val interface
-			amount: ret.amount, // string
-			mask: ret.mask,
-		};
-	}
-	estimate_fee(args)
-	{
-		const args_str = JSON.stringify(args);
-		const ret_string = this.Module.estimate_fee(args_str);
-		const ret = JSON.parse(ret_string);
-		if (typeof ret.err_msg !== 'undefined' && ret.err_msg) {
-			throw ret.err_msg;
-		}
-		return ret.retVal;
-	}
-	estimate_tx_weight(args)
-	{
-		const args_str = JSON.stringify(args);
-		const ret_string = this.Module.estimate_tx_weight(args_str);
-		const ret = JSON.parse(ret_string);
-		if (typeof ret.err_msg !== 'undefined' && ret.err_msg) {
-			throw ret.err_msg;
-		}
-		return parseInt(ret.retVal, 10);
-	}
-	estimate_rct_tx_size(n_inputs, mixin, n_outputs, extra_size, bulletproof)
-	{
-		const args =
-		{
-			n_inputs,
-			mixin,
-			n_outputs,
-			extra_size,
-			bulletproof
-		};
-		const args_str = JSON.stringify(args);
-		const ret_string = this.Module.estimate_rct_tx_size(args_str);
-		const ret = JSON.parse(ret_string);
-		if (typeof ret.err_msg !== 'undefined' && ret.err_msg) {
-			throw ret.err_msg;
-		}
-		return parseInt(ret.retVal, 10);
 	}
 	//
 	// Send
@@ -325,10 +135,35 @@ class MyMoneroCoreBridgeClass extends MyMoneroCoreBridgeEssentialsClass
 			self._cb_handlers__send_funds[self.__key_for_fromCpp__send_funds__success(task_id)](params);
 		};
 	}
+  __new_cb_args_with(task_id, err_msg, res)
+	{
+		const args =
+		{
+			task_id: task_id
+		};
+		if (typeof err_msg !== 'undefined' && err_msg) {
+			args.err_msg = err_msg; // errors must be sent back so that C++ can free heap vals container
+		} else {
+			args.res = res;
+		}
+		return args;
+	}
 	__new_task_id()
 	{
 		return Math.random().toString(36).substr(2, 9); // doesn't have to be super random
 	}
+  __ret_val_boolstring_to_bool(boolstring)
+  {
+    if (typeof boolstring !== "string") {
+      throw "ret_val_boolstring_to_bool expected string input"
+    }
+    if (boolstring === "true" || boolstring === "1") {
+      return true
+    } else if (boolstring === "false" || boolstring === "0") {
+      return false
+    }
+    throw "ret_val_boolstring_to_bool given illegal input"
+  }
 	async__send_funds(fn_args)
 	{
 		const self = this;
@@ -349,7 +184,7 @@ class MyMoneroCoreBridgeClass extends MyMoneroCoreBridgeEssentialsClass
 		self._cb_handlers__send_funds[self.__key_for_fromCpp__send_funds__get_unspent_outs(task_id)] = function(req_params)
 		{
 			// convert bridge-strings to native primitive types
-			req_params.use_dust = MyMoneroBridge_utils.ret_val_boolstring_to_bool(req_params.use_dust)
+			req_params.use_dust = self.__ret_val_boolstring_to_bool(req_params.use_dust)
 			req_params.mixin = parseInt(req_params.mixin)
 			//
 			fn_args.get_unspent_outs_fn(req_params, function(err_msg, res)
@@ -358,8 +193,8 @@ class MyMoneroCoreBridgeClass extends MyMoneroCoreBridgeEssentialsClass
 				const ret_string = self.Module.send_cb_I__got_unspent_outs(JSON.stringify(args))
 				const ret = JSON.parse(ret_string);
 				if (typeof ret.err_msg !== 'undefined' && ret.err_msg) { // this is actually an exception
-					self._cb_handlers__send_funds[self.__key_for_fromCpp__send_funds__error(task_id)]({ 
-						err_msg: ret.err_msg 
+					self._cb_handlers__send_funds[self.__key_for_fromCpp__send_funds__error(task_id)]({
+						err_msg: ret.err_msg
 					});
 					// ^-- this will clean up cb handlers too
 					return;
@@ -379,8 +214,8 @@ class MyMoneroCoreBridgeClass extends MyMoneroCoreBridgeEssentialsClass
 				const ret_string = self.Module.send_cb_II__got_random_outs(JSON.stringify(args))
 				const ret = JSON.parse(ret_string);
 				if (typeof ret.err_msg !== 'undefined' && ret.err_msg) { // this is actually an exception
-					self._cb_handlers__send_funds[self.__key_for_fromCpp__send_funds__error(task_id)]({ 
-						err_msg: ret.err_msg 
+					self._cb_handlers__send_funds[self.__key_for_fromCpp__send_funds__error(task_id)]({
+						err_msg: ret.err_msg
 					});
 					// ^-- this will clean up cb handlers too
 					return;
@@ -397,8 +232,8 @@ class MyMoneroCoreBridgeClass extends MyMoneroCoreBridgeEssentialsClass
 				const ret_string = self.Module.send_cb_III__submitted_tx(JSON.stringify(args))
 				const ret = JSON.parse(ret_string);
 				if (typeof ret.err_msg !== 'undefined' && ret.err_msg) { // this is actually an exception
-					self._cb_handlers__send_funds[self.__key_for_fromCpp__send_funds__error(task_id)]({ 
-						err_msg: ret.err_msg 
+					self._cb_handlers__send_funds[self.__key_for_fromCpp__send_funds__error(task_id)]({
+						err_msg: ret.err_msg
 					});
 					// ^-- this will clean up cb handlers too
 					return;
@@ -425,7 +260,7 @@ class MyMoneroCoreBridgeClass extends MyMoneroCoreBridgeEssentialsClass
 			fn_args.success_fn(params);
 			freeAllCBHandlersForTask(); // since we're done with the task
 		};
-		const args = 
+		const args =
 		{
 			task_id: task_id,
 			is_sweeping: fn_args.is_sweeping,
@@ -436,7 +271,7 @@ class MyMoneroCoreBridgeClass extends MyMoneroCoreBridgeEssentialsClass
 			pub_spendKey_string: fn_args.pub_spendKey_string,
 			to_address_string: fn_args.to_address_string,
 			priority: "" + fn_args.priority,
-			nettype_string: nettype_utils.nettype_to_API_string(fn_args.nettype)
+			nettype_string: nettype_to_API_string(fn_args.nettype)
 		};
 		if (typeof fn_args.payment_id_string !== 'undefined' && fn_args.payment_id_string) {
 			args.payment_id_string = fn_args.payment_id_string;
@@ -448,30 +283,14 @@ class MyMoneroCoreBridgeClass extends MyMoneroCoreBridgeEssentialsClass
 		const ret_string = this.Module.send_funds(args_str);
 		const ret = JSON.parse(ret_string);
 		if (typeof ret.err_msg !== 'undefined' && ret.err_msg) { // this is actually an exception
-			self._cb_handlers__send_funds[self.__key_for_fromCpp__send_funds__error(task_id)]({ 
-				err_msg: ret.err_msg 
+			self._cb_handlers__send_funds[self.__key_for_fromCpp__send_funds__error(task_id)]({
+				err_msg: ret.err_msg
 			});
 			// ^-- this will clean up cb handlers too
 			return;
 		} else {
 			// TODO: assert Object.keys(ret).length == 0
 		}
-	}
-	encrypt_payment_id(payment_id, public_key, secret_key)
-	{
-		const args =
-		{
-			payment_id: payment_id,
-			public_key: public_key,
-			secret_key: secret_key
-		};
-		const args_str = JSON.stringify(args);
-		const ret_string = this.Module.encrypt_payment_id(args_str);
-		const ret = JSON.parse(ret_string);
-		if (typeof ret.err_msg !== 'undefined' && ret.err_msg) {
-			throw ret.err_msg;
-		}
-		return ret.retVal;
 	}
 	send_step2__try_create_transaction( // send only IPC-safe vals - no JSBigInts
 			from_address_string,
@@ -495,7 +314,7 @@ class MyMoneroCoreBridgeClass extends MyMoneroCoreBridgeEssentialsClass
 			mix_outs = mix_outs || [];
 			// NOTE: we also do this check in the C++... may as well remove it from here
 			if (mix_outs.length !== using_outs.length && fake_outputs_count !== 0) {
-				return { 
+				return {
 					err_msg: "Wrong number of mix outs provided (" +
 						using_outs.length + " using_outs, " +
 						mix_outs.length + " mix outs)"
@@ -519,7 +338,7 @@ class MyMoneroCoreBridgeClass extends MyMoneroCoreBridgeEssentialsClass
 				const sanitary__mix_outs_and_amount =
 				{
 					amount: mix_outs[i].amount.toString(), // it should be a string, but in case it's not
-					outputs: [] 
+					outputs: []
 				};
 				if (mix_outs[i].outputs && typeof mix_outs[i].outputs !== 'undefined') {
 					for (let j in mix_outs[i].outputs) {
@@ -551,7 +370,7 @@ class MyMoneroCoreBridgeClass extends MyMoneroCoreBridgeEssentialsClass
 				using_outs: sanitary__using_outs,
 				mix_outs: sanitary__mix_outs,
 				unlock_time: "" + unlock_time, // bridge is expecting a string
-				nettype_string: nettype_utils.nettype_to_API_string(nettype),
+				nettype_string: nettype_to_API_string(nettype),
 			};
 			if (typeof payment_id !== "undefined" && payment_id) {
 				args.payment_id_string = payment_id;

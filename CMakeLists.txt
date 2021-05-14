@@ -3,6 +3,13 @@ cmake_minimum_required(VERSION 3.4.1)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 project(MyMoneroCoreCpp)
+
+if(DEFINED ENV{OPTIMIZATION})
+  set(OPTIMIZATION $ENV{OPTIMIZATION})
+else()
+  set(OPTIMIZATION O0)
+endif()
+
 #
 include_directories("build/boost/include") # must exist already - run bin/build-boost-emscripten.sh
 #
@@ -28,7 +35,7 @@ include_directories("${MONERO_SRC}/mnemonics")
 include_directories("${MONERO_SRC}/contrib/libsodium/include") # support sodium/… paths
 include_directories("${MONERO_SRC}/contrib/libsodium/include/sodium")
 #
-# keeping test files in a separate source directory 
+# keeping test files in a separate source directory
 # file(GLOB TEST_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} test/test_*.cpp)
 #
 set(
@@ -143,7 +150,7 @@ set (
 -s NODEJS_CATCH_EXIT=0 \
 -s EXPORTED_RUNTIME_METHODS='[\"UTF8ToString\"]' \
 "
-    # • Disabling exception catching does not introduce silent failures 
+    # • Disabling exception catching does not introduce silent failures
     # • Probably don't need PRECISE_F32 but wouldn't want to not use it
     #
     #
@@ -154,7 +161,7 @@ set(
     EMCC_LINKER_FLAGS__WASM
     "${EMCC_LINKER_FLAGS___BASE} \
 -s WASM=1 \
--Oz \
+-${OPTIMIZATION} \
 -s ALLOW_MEMORY_GROWTH=1 \
 "
     # -g \

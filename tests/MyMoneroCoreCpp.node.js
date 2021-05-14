@@ -39,164 +39,6 @@ function tests(Module)
 		console.timeEnd("send_step2__try_create_transaction")
 	}
 	{
-		console.time("decode_address")
-		const args =
-		{
-			"address": "43zxvpcj5Xv9SEkNXbMCG7LPQStHMpFCQCmkmR4u5nzjWwq5Xkv5VmGgYEsHXg4ja2FGRD5wMWbBVMijDTqmmVqm93wHGkg",
-			"nettype_string": "MAINNET"
-		}
-		const ret_string = Module.decode_address(JSON.stringify(args))
-		console.timeEnd("decode_address")
-		console.log("decode_address ret", ret_string)
-	}
-	{
-		console.time("is_subaddress")
-		const args_str = '{"nettype_string":"MAINNET","address":"4L6Gcy9TAHqPVPMnqa5cPtJK25tr7maE7LrJe67vzumiCtWwjDBvYnHZr18wFexJpih71Mxsjv8b7EpQftpB9NjPaL41VrjstLM5WevLZx"}'
-		const ret_string = Module.is_subaddress(args_str)
-		console.timeEnd("is_subaddress")
-		console.log("is_subaddress ret", ret_string)
-	}
-	{
-		console.time("is_integrated_address")
-		const args_str = '{"nettype_string":"MAINNET","address":"4L6Gcy9TAHqPVPMnqa5cPtJK25tr7maE7LrJe67vzumiCtWwjDBvYnHZr18wFexJpih71Mxsjv8b7EpQftpB9NjPaL41VrjstLM5WevLZx"}'
-		const ret_string = Module.is_integrated_address(args_str)
-		console.timeEnd("is_integrated_address")
-		console.log("is_integrated_address ret", ret_string)
-	}
-	{
-		console.time("new_integrated_address")
-		const args_str = '{"nettype_string":"MAINNET","address":"43zxvpcj5Xv9SEkNXbMCG7LPQStHMpFCQCmkmR4u5nzjWwq5Xkv5VmGgYEsHXg4ja2FGRD5wMWbBVMijDTqmmVqm93wHGkg","short_pid":"b79f8efc81f58f67"}'
-		const ret_string = Module.new_integrated_address(args_str)
-		console.timeEnd("new_integrated_address")
-		console.log("new_integrated_address ret", ret_string)
-	}
-	{
-		console.time("new_payment_id")
-		const args_str = '{}'
-		const ret_string = Module.new_payment_id(args_str)
-		console.timeEnd("new_payment_id")
-		console.log("new_payment_id ret", ret_string)
-	}
-	{
-		console.time("newly_created_wallet")
-		const args_str = '{"nettype_string":"MAINNET","locale_language_code":"en-US"}'
-		const ret_string = Module.newly_created_wallet(args_str)
-		console.timeEnd("newly_created_wallet")
-		console.log("newly_created_wallet ret", ret_string)
-	}
-	{
-		console.time("are_equal_mnemonics")
-		const args_str = '{"a":"foxe selfish hum nexus juven dodeg pepp ember biscuti elap jazz vibrate biscui","b":"fox sel hum nex juv dod pep emb bis ela jaz vib bis"}'
-		const ret_string = Module.are_equal_mnemonics(args_str)
-		console.timeEnd("are_equal_mnemonics")
-		console.log("are_equal_mnemonics ret", ret_string)
-	}
-	{
-		console.time("mnemonic_from_seed")
-		const args_str = '{"seed_string":"9c973aa296b79bbf452781dd3d32ad7f","wordset_name":"English"}'
-		const ret_string = Module.mnemonic_from_seed(args_str)
-		console.timeEnd("mnemonic_from_seed")
-		console.log("mnemonic_from_seed ret", ret_string)
-	}
-	{
-		console.time("seed_and_keys_from_mnemonic")
-		const args_str = '{"mnemonic_string":"foxe selfish hum nexus juven dodeg pepp ember biscuti elap jazz vibrate biscui","nettype_string":"MAINNET"}'
-		const ret_string = Module.seed_and_keys_from_mnemonic(args_str)
-		console.timeEnd("seed_and_keys_from_mnemonic")
-		console.log("seed_and_keys_from_mnemonic ret", ret_string)
-	}
-	{
-		console.time("validate_components_for_login w seed")
-		const args_str = '{"address_string":"43zxvpcj5Xv9SEkNXbMCG7LPQStHMpFCQCmkmR4u5nzjWwq5Xkv5VmGgYEsHXg4ja2FGRD5wMWbBVMijDTqmmVqm93wHGkg","sec_viewKey_string":"7bea1907940afdd480eff7c4bcadb478a0fbb626df9e3ed74ae801e18f53e104","sec_spendKey_string":"4e6d43cd03812b803c6f3206689f5fcc910005fc7e91d50d79b0776dbefcd803","seed_string":"9c973aa296b79bbf452781dd3d32ad7f","nettype_string":"MAINNET"}'
-		const ret_string = Module.validate_components_for_login(args_str)
-		console.timeEnd("validate_components_for_login w seed")
-		console.log("validate_components_for_login w seed ret", ret_string)
-	}
-	{
-		console.time("validate_components_for_login w both keys")
-		const args_str = '{"address_string":"43zxvpcj5Xv9SEkNXbMCG7LPQStHMpFCQCmkmR4u5nzjWwq5Xkv5VmGgYEsHXg4ja2FGRD5wMWbBVMijDTqmmVqm93wHGkg","sec_viewKey_string":"7bea1907940afdd480eff7c4bcadb478a0fbb626df9e3ed74ae801e18f53e104","sec_spendKey_string":"4e6d43cd03812b803c6f3206689f5fcc910005fc7e91d50d79b0776dbefcd803","nettype_string":"MAINNET"}'
-		const ret_string = Module.validate_components_for_login(args_str)
-		console.timeEnd("validate_components_for_login w both keys")
-		console.log("validate_components_for_login w both keys ret", ret_string)
-	}
-	{
-		console.time("validate_components_for_login view only")
-		const args_str = '{"address_string":"43zxvpcj5Xv9SEkNXbMCG7LPQStHMpFCQCmkmR4u5nzjWwq5Xkv5VmGgYEsHXg4ja2FGRD5wMWbBVMijDTqmmVqm93wHGkg","sec_viewKey_string":"7bea1907940afdd480eff7c4bcadb478a0fbb626df9e3ed74ae801e18f53e104","nettype_string":"MAINNET"}'
-		const ret_string = Module.validate_components_for_login(args_str)
-		console.timeEnd("validate_components_for_login view only")
-		console.log("validate_components_for_login view only ret", ret_string)
-	}
-	{
-		console.time("address_and_keys_from_seed")
-		const args_str = '{"seed_string":"9c973aa296b79bbf452781dd3d32ad7f","nettype_string":"MAINNET"}'
-		const ret_string = Module.address_and_keys_from_seed(args_str)
-		console.timeEnd("address_and_keys_from_seed")
-		console.log("address_and_keys_from_seed ret", ret_string)
-	}
-	{
-		console.time("estimated_tx_network_fee")
-		const args_str = '{"fee_per_b":"24658","priority":"1"}'
-		const ret_string = Module.estimated_tx_network_fee(args_str)
-		console.timeEnd("estimated_tx_network_fee")
-		console.log("estimated_tx_network_fee ret", ret_string)
-	}
-	{
-		console.time("estimate_rct_tx_size")
-		const args_str = '{"n_inputs":1,"mixin":10,"n_outputs":2,"extra_size":0,"bulletproof":true}'
-		const ret_string = Module.estimate_rct_tx_size(args_str)
-		console.timeEnd("estimate_rct_tx_size")
-		console.log("estimate_rct_tx_size ret", ret_string)
-	}
-	{
-		console.time("generate_key_image")
-		const args_str = '{"sec_viewKey_string":"7bea1907940afdd480eff7c4bcadb478a0fbb626df9e3ed74ae801e18f53e104","sec_spendKey_string":"4e6d43cd03812b803c6f3206689f5fcc910005fc7e91d50d79b0776dbefcd803","pub_spendKey_string":"3eb884d3440d71326e27cc07a861b873e72abd339feb654660c36a008a0028b3","tx_pub_key":"fc7f85bf64c6e4f6aa612dbc8ddb1bb77a9283656e9c2b9e777c9519798622b2","out_index":"0"}'
-		const ret_string = Module.generate_key_image(args_str)
-		console.timeEnd("generate_key_image")
-		console.log("generate_key_image ret", ret_string)
-	}
-	{
-		console.time("generate_key_derivation")
-		const args_str = '{"pub":"904e49462268d771cc1649084c35aa1296bfb214880fe2e7f373620a3e2ba597","sec":"52aa4c69b93b780885c9d7f51e6fd5795904962c61a2e07437e130784846f70d"}'
-		const ret_string = Module.generate_key_derivation(args_str)
-		console.timeEnd("generate_key_derivation")
-		console.log("generate_key_derivation ret", ret_string)
-	}
-	{
-		console.time("derive_public_key")
-		const args_str = '{"derivation":"591c749f1868c58f37ec3d2a9d2f08e7f98417ac4f8131e3a57c1fd71273ad00","out_index":"1","pub":"904e49462268d771cc1649084c35aa1296bfb214880fe2e7f373620a3e2ba597"}'
-		const ret_string = Module.derive_public_key(args_str)
-		console.timeEnd("derive_public_key")
-		console.log("derive_public_key ret", ret_string)
-	}
-	{
-		console.time("derive_subaddress_public_key")
-		const args_str = '{"derivation":"591c749f1868c58f37ec3d2a9d2f08e7f98417ac4f8131e3a57c1fd71273ad00","out_index":"1","output_key":"904e49462268d771cc1649084c35aa1296bfb214880fe2e7f373620a3e2ba597"}'
-		const ret_string = Module.derive_subaddress_public_key(args_str)
-		console.timeEnd("derive_subaddress_public_key")
-		console.log("derive_subaddress_public_key ret", ret_string)
-	}
-  {
-		console.time("derivation_to_scalar")
-		const args_str = '{"derivation":"7a4c13a037d4bd2a7dd99a8c24669e9e04ca4e8a90e5b6703e88e87ad51c1849","output_index":1}'
-		const ret_string = Module.derivation_to_scalar(args_str)
-		console.timeEnd("derivation_to_scalar")
-		console.log("derivation_to_scalar ret", ret_string)
-  }
-	{
-		console.time("decodeRct")
-		const args_str = '{"i":"1","sk":"9b1529acb638f497d05677d7505d354b4ba6bc95484008f6362f93160ef3e503","rv":{"type":"1","ecdhInfo":[{"mask":"3ad9d0b3398691b94558e0f750e07e5e0d7d12411cd70b3841159e6c6b10db02","amount":"b3189d8adb5a26568e497eb8e376a7d7d946ebb1daef4c2c87a2c30b65915506"},{"mask":"97b00af8ecba3cb71b9660cc9e1ac110abd21a4c5e50a2c125f964caa96bef0c","amount":"60269d8adb5a26568e497eb8e376a7d7d946ebb1daef4c2c87a2c30b65915506"},{"mask":"db67f5066d9455db404aeaf435ad948bc9f27344bc743e3a32583a9e6695cb08","amount":"b3189d8adb5a26568e497eb8e376a7d7d946ebb1daef4c2c87a2c30b65915506"}],"outPk":[{"mask":"9adc531a9c79a49a4257f24e5e5ea49c2fc1fb4eef49e00d5e5aba6cb6963a7d"},{"mask":"89f40499d6786a4027a24d6674d0940146fd12d8bc6007d338f19f05040e7a41"},{"mask":"f413d28bd5ffdc020528bcb2c19919d7484fbc9c3dd30de34ecff5b8a904e7f6"}]}}'
-		const ret_string = Module.decodeRct(args_str)
-		console.timeEnd("decodeRct")
-		console.log("decodeRct ret", ret_string)
-	}
-  {
-		console.time("decodeRctSimple")
-		const args_str = '{"i":"0","sk":"a2259749f7aad692e000af4b7f383f4441ba4085bf70e518081365750db73b06","rv":{"type":"3","ecdhInfo":[{"mask":"dc9a2e8a66a336f67bb1a150f6de4522f09c451a10f450d7ee096baa75660a05","amount":"0c8f7514fd1d7c4f49795f33254739ce8e96275b17f50a03c877ed4b56896601"},{"mask":"f0d94c21aa892ad4e0d492f5fce4b8e99ff5e1ed687134b9419a2290e8701004","amount":"dbaeca613d37b53ff0a22a1fb6e09150baa6f4f5f6e145ef78a78cc19624a702"}],"outPk":[{"mask":"4dd9e7e2a2d8f31f065562923079399ec6c90d4b155d289208001994815bd01f"},{"mask":"c23cdb07e56bcb6a9ad087122b7079f2c34e217bcbddd16ca6031ab8828f7a84"}]}}'
-		const ret_string = Module.decodeRctSimple(args_str)
-		console.timeEnd("decodeRctSimple")
-		console.log("decodeRctSimple ret", ret_string)
-  }
-	{
 		console.time("send_funds")
 		const task_id = "something unique";
 		//
@@ -250,7 +92,7 @@ function tests(Module)
 			console.log("fromCpp__send_funds__success", task_id, req_params)
 			console.timeEnd("send_funds")
 		}
-		const args = 
+		const args =
 		{
 			task_id: task_id,
 			is_sweeping: true,
@@ -268,17 +110,10 @@ function tests(Module)
 		const args_str = JSON.stringify(args, null, '')
 		Module.send_funds(args_str);
 	}
-	{
-		console.time("encrypt_payment_id")
-		const args_str = '{"payment_id":"f0756322689f8299","public_key":"9c8bd8a9ff8703ddd5e28a36dc5c5586d2ec0b4bfd9190adeea825db5808ead2","secret_key":"74f277a60613a4efa33258b9814c78e0ff7a53cf8d2cd248ee921ac7f607f800"}'
-		const ret_string = Module.encrypt_payment_id(args_str)
-		console.timeEnd("encrypt_payment_id")
-		console.log("encrypt_payment_id ret", ret_string)
-  }
 }
 console.time("Load module")
 require('../monero_utils/MyMoneroCoreBridge')({asmjs: false}).then(function(instance) // this can be switched to manually test asmjs vs wasm - can be exposed to option
-{	
+{
 	console.timeEnd("Load module")
 	console.log("Loaded instance")
 	tests(instance.Module)

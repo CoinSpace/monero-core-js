@@ -1,6 +1,5 @@
-.DS_Store
 node_modules
-.vscode
+.git
 build/
 monero_utils/MyMoneroCoreCpp_WASM.js
 monero_utils/MyMoneroCoreCpp_WASM.wasm

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 PLATFORM="emscripten"
 
 SRC_DIR="contrib/boost-sdk"
@@ -16,7 +18,7 @@ fi
 
 if [ -z "$EMSCRIPTEN" ]; then
   echo "EMSCRIPTEN MUST BE DEFINED!"
-  exit -1  
+  exit -1
 fi
 
 cd $EMSCRIPTEN; ./embuilder.py build zlib
@@ -49,7 +51,7 @@ fi
 cat "$JAM_CONFIG_PATH" >> project-config.jam
 
 # ---
-# Clean 
+# Clean
 rm -rf "$INSTALL_PATH"
 mkdir "$INSTALL_PATH"
 

@@ -27,8 +27,6 @@
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 "use strict";
-const mymonero_core_js = require("../");
-const JSBigInt = mymonero_core_js.JSBigInt;
 const assert = require("assert");
 
 class APIClient
@@ -42,7 +40,7 @@ class APIClient
 			throw new Error("APIClient requires options.fetch")
 		}
 		self.hostBaseURL = options.hostBaseURL || "http://localhost:9100/" // must include trailing /
-	}	
+	}
 	//
 	// Getting outputs for sending funds
 	UnspentOuts(parameters, fn)
@@ -56,7 +54,7 @@ class APIClient
 		}).catch(function(e) {
 			fn(e && e.Error ? e.Error : ""+e);
 		});
-		const requestHandle = 
+		const requestHandle =
 		{
 			abort: function()
 			{
@@ -77,7 +75,7 @@ class APIClient
 		}).catch(function(e) {
 			fn(e && e.Error ? e.Error : ""+e);
 		});
-		const requestHandle = 
+		const requestHandle =
 		{
 			abort: function()
 			{
@@ -99,7 +97,7 @@ class APIClient
 		}).catch(function(e) {
 			fn(e && e.Error ? e.Error : ""+e);
 		});
-		const requestHandle = 
+		const requestHandle =
 		{
 			abort: function()
 			{
@@ -180,23 +178,16 @@ describe("sendingFunds tests", function()
 		const apiClient = new APIClient({ fetch: new Fetch() });
 		const target_address = "4L6Gcy9TAHqPVPMnqa5cPtJK25tr7maE7LrJe67vzumiCtWwjDBvYnHZr18wFexJpih71Mxsjv8b7EpQftpB9NjPaRYYBm62jmF59EWcj6"
 		const is_sweeping = false;
-		const entered_amount = "0.0002";
-		var sending_amount; // possibly need this ; here for the JS parser
+		var sending_amount = "200000000"; // "0.0002 XMR"; possibly need this ; here for the JS parser
 		if (is_sweeping) {
 			sending_amount = "0"
-		} else {
-			try {
-				sending_amount = (mymonero_core_js.monero_amount_format_utils.parseMoney(entered_amount)).toString();
-			} catch (e) {
-				throw new Error(`Couldn't parse amount ${amount}: ${e}`)
-			}
 		}
 		const simple_priority = 1;
 		const from_address = "43zxvpcj5Xv9SEkNXbMCG7LPQStHMpFCQCmkmR4u5nzjWwq5Xkv5VmGgYEsHXg4ja2FGRD5wMWbBVMijDTqmmVqm93wHGkg";
 		const sec_viewKey_string = "7bea1907940afdd480eff7c4bcadb478a0fbb626df9e3ed74ae801e18f53e104";
 		const sec_spendKey_string = "4e6d43cd03812b803c6f3206689f5fcc910005fc7e91d50d79b0776dbefcd803";
 		const pub_spendKey_string = "3eb884d3440d71326e27cc07a861b873e72abd339feb654660c36a008a0028b3";
-		const payment_id = null; 
+		const payment_id = null;
 		var coreBridge_instance;
 		try {
 			coreBridge_instance = await require('../monero_utils/MyMoneroCoreBridge')({ asmjs: undefined/*allow it to detect*/ });
@@ -205,7 +196,7 @@ describe("sendingFunds tests", function()
 			return;
 		}
 		coreBridge_instance.async__send_funds({
-			is_sweeping: is_sweeping, 
+			is_sweeping: is_sweeping,
 			payment_id_string: payment_id, // may be nil or undefined
 			sending_amount: is_sweeping ? 0 : sending_amount, // sending amount
 			from_address_string: from_address,
@@ -214,8 +205,8 @@ describe("sendingFunds tests", function()
 			pub_spendKey_string: pub_spendKey_string,
 			to_address_string: target_address,
 			priority: simple_priority,
-			unlock_time: 0, // unlock_time 
-			nettype: mymonero_core_js.nettype_utils.network_type.MAINNET,
+			unlock_time: 0, // unlock_time
+			nettype: 0, // mymonero_core_js.nettype_utils.network_type.MAINNET,
 			//
 			get_unspent_outs_fn: function(req_params, cb)
 			{
@@ -241,12 +232,12 @@ describe("sendingFunds tests", function()
 			//
 			status_update_fn: function(params)
 			{
-				console.log("> Send funds step " + params.code + ": " + mymonero_core_js.monero_sendingFunds_utils.SendFunds_ProcessStep_MessageSuffix[params.code])
+				console.log("> Send funds step " + params.code)
 			},
 			error_fn: function(params)
 			{
 				console.error("Error occurred.... ", params.err_msg)
-				throw new Error("SendFunds err:" + params.err_msg) 
+				throw new Error("SendFunds err:" + params.err_msg)
 				// TODO: how to assert err msg not nil? didn't work
 				assert.equal(true, false)
 			},
