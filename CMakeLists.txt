@@ -4,7 +4,7 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 project(MyMoneroCoreCpp)
 
-if(ENV{BUILD} EQUAL "production")
+if($ENV{BUILD} MATCHES "production")
   set(OPTIMIZATION "-Oz")
 else()
   set(OPTIMIZATION "-O0")
