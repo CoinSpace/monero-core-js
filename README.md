@@ -9,8 +9,6 @@ docker exec -it monero-core-js_emscripten_1 cp -r /src/build /app
 docker exec -it monero-core-js_emscripten_1 ./bin/build-emcpp.sh
 
 npm install
-npm run serve
-npm run serve:wasm
 npm test
 ```
 
@@ -24,3 +22,9 @@ Module: MyMoneroCoreCpp_WASM.wasm
 ```
 
 Open Chrome DevTools, click the gear (⚙) icon in the top right corner of DevTools pane, go to the Experiments panel and tick WebAssembly Debugging: Enable DWARF support.
+
+```
+npm run serve
+npm run serve:wasm
+# Open Chrome Console => Sources => file:// => add break point
+```
