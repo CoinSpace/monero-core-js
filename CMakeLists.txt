@@ -4,10 +4,15 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 project(MyMoneroCoreCpp)
 
-if(DEFINED ENV{OPTIMIZATION})
-  set(OPTIMIZATION $ENV{OPTIMIZATION})
+if(ENV{BUILD} EQUAL "production")
+  set(OPTIMIZATION "-Oz")
 else()
-  set(OPTIMIZATION O0)
+  set(OPTIMIZATION "-O0")
+  set(
+    DEBUG_DWARF
+    "-g -gseparate-dwarf=MyMoneroCoreCpp_WASM.debug.wasm \
+    "
+  )
 endif()
 
 #
@@ -159,9 +164,8 @@ set (
 )
 set(
     EMCC_LINKER_FLAGS__WASM
-    "${EMCC_LINKER_FLAGS___BASE} \
+    "${EMCC_LINKER_FLAGS___BASE} ${OPTIMIZATION} ${DEBUG_DWARF} \
 -s WASM=1 \
--${OPTIMIZATION} \
 -s ALLOW_MEMORY_GROWTH=1 \
 "
     # -g \

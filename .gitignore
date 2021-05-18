@@ -2,5 +2,3 @@
 node_modules
 .vscode
 build/
-monero_utils/MyMoneroCoreCpp_WASM.js
-monero_utils/MyMoneroCoreCpp_WASM.wasm

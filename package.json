@@ -10,10 +10,23 @@
     "url": "https://github.com/CoinSpace/monero-core-js.git"
   },
   "scripts": {
-    "test": "mocha -- ./tests/ --timeout 30000"
+    "serve": "webpack serve --config webpack.config.js",
+    "serve:wasm": "nodemon --watch ./src --ext cpp,hpp,h,c --exec 'docker exec -i monero-core-js_emscripten_1 ./bin/build-emcpp.sh'",
+    "test": "mocha test --recursive --reporter spec --timeout 5000",
+    "oldtest": "mocha -- ./tests/ --timeout 30000"
   },
   "dependencies": {},
   "devDependencies": {
-    "mocha": "^8.4.0"
-  }
+    "html-webpack-plugin": "^5.3.1",
+    "mocha": "^8.4.0",
+    "nodemon": "^2.0.7",
+    "webpack": "^5.37.0",
+    "webpack-cli": "^4.7.0",
+    "webpack-dev-server": "^3.11.2"
+  },
+  "files": [
+    "index.js",
+    "build/MyMoneroCoreCpp_WASM",
+    "build/MyMoneroCoreCpp_WASM.wasm"
+  ]
 }

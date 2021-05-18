@@ -22,14 +22,14 @@ jobs:
         run: |
           docker run --rm -i \
             --env EMSCRIPTEN=/emsdk/upstream/emscripten \
-            --env OPTIMIZATION=Oz \
+            --env BUILD=production \
             -v $(pwd):/src emscripten/emsdk:2.0.20 ./bin/build-emcpp.sh
       - uses: actions/upload-artifact@v2
         with:
           name: wasm
           path: |
-            monero_utils/MyMoneroCoreCpp_WASM.js
-            monero_utils/MyMoneroCoreCpp_WASM.wasm
+            build/MyMoneroCoreCpp_WASM.js
+            build/MyMoneroCoreCpp_WASM.wasm
 
   test:
     needs: build
@@ -42,7 +42,7 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: wasm
-          path: monero_utils
+          path: build
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
@@ -59,7 +59,7 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: wasm
-          path: monero_utils
+          path: build
       - uses: actions/setup-node@v2
         with:
           node-version: 14
