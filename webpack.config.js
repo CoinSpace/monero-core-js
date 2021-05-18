@@ -10,9 +10,6 @@ module.exports = {
     hot: true,
     host: '0.0.0.0',
     port: 5000,
-    before: function (app, server, compiler) {
-      console.log('beofer')
-    },
   },
   output: {
     filename: 'bundle.js',
