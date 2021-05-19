@@ -1,6 +1,6 @@
 'use strict';
 
-const createModule = require('./build/MyMoneroCoreCpp_WASM');
+const createModule = require('./build/MoneroCoreJS');
 
 class MoneroCoreJS {
 	constructor(Module) {
@@ -20,7 +20,7 @@ function init(wasmPath = '') {
     const instance = new MoneroCoreJS(Module);
     return instance;
   }).catch(function(err) {
-    console.error('Error loading WASM_MyMoneroCoreCpp:', err);
+    console.error('Error loading MoneroCoreJS:', err);
     throw err;
   });
 }
