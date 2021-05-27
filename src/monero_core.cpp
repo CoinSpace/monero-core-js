@@ -3,14 +3,14 @@
 using namespace std;
 using namespace monero_core;
 
-void parse_from_addresses(
+void parse_addresses(
   boost::property_tree::ptree& json_root,
   const cryptonote::network_type& nettype,
   cryptonote::account_keys& account_keys,
   unordered_map<crypto::public_key, cryptonote::subaddress_index>& subaddresses
 ) {
   size_t i = 0;
-  BOOST_FOREACH(boost::property_tree::ptree::value_type& from_address, json_root.get_child("from_addresses"))
+  BOOST_FOREACH(boost::property_tree::ptree::value_type& from_address, json_root.get_child("addresses"))
 	{
 		assert(from_address.first.empty());
     auto address = from_address.second.get_value<string>();
@@ -31,16 +31,17 @@ void parse_destinations(
   const cryptonote::network_type& nettype,
   vector<cryptonote::tx_destination_entry>& splitted_dsts
 ) {
-  vector<Destination> destinations;
   size_t i = 0;
-	BOOST_FOREACH(boost::property_tree::ptree::value_type& destinations, json_root.get_child("destinations"))
+  boost::property_tree::ptree destinations = json_root.get_child("destinations");
+  size_t size = destinations.size();
+	BOOST_FOREACH(boost::property_tree::ptree::value_type& item, destinations)
 	{
-		assert(destinations.first.empty());
+		assert(item.first.empty());
     cryptonote::tx_destination_entry destination = cryptonote::tx_destination_entry{};
     cryptonote::address_parse_info destination_info;
-	  cryptonote::get_account_address_from_str(destination_info, nettype, destinations.second.get<string>("address"));
+	  cryptonote::get_account_address_from_str(destination_info, nettype, item.second.get<string>("address"));
     destination.addr = destination_info.address;
-    destination.amount = stoull(destinations.second.get<string>("amount"));
+    destination.amount = stoull(item.second.get<string>("amount"));
     destination.is_subaddress = destination_info.is_subaddress;
     splitted_dsts.push_back(destination);
     if (i == 0) { // destination
@@ -49,7 +50,7 @@ void parse_destinations(
       cryptonote::set_encrypted_payment_id_to_tx_extra_nonce(extra_nonce, payment_id);
       cryptonote::add_extra_nonce_to_tx_extra(extra, extra_nonce);
     }
-    if (i == 1) { // change
+    if (i == (size - 1)) { // change
       change_dst = std::move(destination);
     }
     i++;
@@ -57,22 +58,22 @@ void parse_destinations(
 }
 
 void parse_inputs(boost::property_tree::ptree& json_root, vector<SpendableOutput>& outputs) {
-	BOOST_FOREACH(boost::property_tree::ptree::value_type& output_desc, json_root.get_child("using_outs"))
+	BOOST_FOREACH(boost::property_tree::ptree::value_type& output_desc, json_root.get_child("sources"))
 	{
 		assert(output_desc.first.empty());
 		SpendableOutput out{};
 		out.amount = stoull(output_desc.second.get<string>("amount"));
-		out.public_key = output_desc.second.get<string>("public_key");
-		out.rct = output_desc.second.get<string>("rct");
-		out.global_index = stoull(output_desc.second.get<string>("global_index"));
+		out.public_key = output_desc.second.get<string>("targetKey");
+		out.out_pk = output_desc.second.get<string>("outPk");
+		out.global_index = stoull(output_desc.second.get<string>("globalIndex"));
 		out.index = stoull(output_desc.second.get<string>("index"));
-		out.tx_pub_key = output_desc.second.get<string>("tx_pub_key");
+		out.tx_pub_key = output_desc.second.get<string>("txPubKey");
 		outputs.push_back(std::move(out));
 	}
 }
 
-void parse_mixins(boost::property_tree::ptree& json_root, vector<RandomAmountOutputs>& mix_outs) {
-	BOOST_FOREACH(boost::property_tree::ptree::value_type& mix_out_desc, json_root.get_child("mix_outs"))
+void parse_mixins(boost::property_tree::ptree& json_root, vector<RandomAmountOutputs>& mixins) {
+	BOOST_FOREACH(boost::property_tree::ptree::value_type& mix_out_desc, json_root.get_child("mixins"))
 	{
 		assert(mix_out_desc.first.empty());
 		auto amountAndOuts = RandomAmountOutputs{};
@@ -81,20 +82,19 @@ void parse_mixins(boost::property_tree::ptree& json_root, vector<RandomAmountOut
 		{
 			assert(mix_out_output_desc.first.empty());
 			auto amountOutput = RandomAmountOutput{};
-			amountOutput.global_index = stoull(mix_out_output_desc.second.get<string>("global_index"));
-			amountOutput.public_key = mix_out_output_desc.second.get<string>("public_key");
-			amountOutput.rct = mix_out_output_desc.second.get<string>("rct");
+			amountOutput.global_index = stoull(mix_out_output_desc.second.get<string>("globalIndex"));
+			amountOutput.public_key = mix_out_output_desc.second.get<string>("targetKey");
+			amountOutput.out_pk = mix_out_output_desc.second.get<string>("outPk");
 			amountAndOuts.outputs.push_back(std::move(amountOutput));
 		}
-		mix_outs.push_back(std::move(amountAndOuts));
+		mixins.push_back(std::move(amountAndOuts));
 	}
 }
 
 void make_sources(
   boost::property_tree::ptree& json_root,
   vector<SpendableOutput>& outputs,
-  vector<RandomAmountOutputs>& mix_outs,
-  vector<uint8_t>& extra,
+  vector<RandomAmountOutputs>& mixins,
   const cryptonote::account_keys& account_keys,
   vector<cryptonote::tx_source_entry>& sources
 ) {
@@ -104,15 +104,15 @@ void make_sources(
 		src.amount = outputs[out_index].amount;
 		src.rct = true;
     // sort fake outputs by global index
-    std::sort(mix_outs[out_index].outputs.begin(), mix_outs[out_index].outputs.end(), [] (
+    std::sort(mixins[out_index].outputs.begin(), mixins[out_index].outputs.end(), [] (
       RandomAmountOutput const& a,
       RandomAmountOutput const& b
     ) {
       return a.global_index < b.global_index;
     });
     // add mixins
-    for (size_t j = 0; src.outputs.size() < fake_outputs_count && j < mix_outs[out_index].outputs.size(); j++) {
-      auto item = mix_outs[out_index].outputs[j];
+    for (size_t j = 0; src.outputs.size() < fake_outputs_count && j < mixins[out_index].outputs.size(); j++) {
+      auto item = mixins[out_index].outputs[j];
       if (item.global_index == outputs[out_index].global_index) {
         continue;
       }
@@ -122,7 +122,7 @@ void make_sources(
       epee::string_tools::hex_to_pod(item.public_key, public_key);
       oe.second.dest = rct::pk2rct(public_key);
       rct::key commit;
-      epee::string_tools::hex_to_pod(item.rct, commit);
+      epee::string_tools::hex_to_pod(item.out_pk, commit);
       oe.second.mask = commit;
       src.outputs.push_back(oe);
     }
@@ -133,7 +133,7 @@ void make_sources(
     epee::string_tools::hex_to_pod(outputs[out_index].public_key, public_key);
     real_oe.second.dest = rct::pk2rct(public_key);
     rct::key commit;
-    epee::string_tools::hex_to_pod(outputs[out_index].rct, commit);
+    epee::string_tools::hex_to_pod(outputs[out_index].out_pk, commit);
     real_oe.second.mask = commit;
 		uint64_t real_output_index = src.outputs.size();
 		for (size_t j = 0; j < src.outputs.size(); j++) {
@@ -147,8 +147,7 @@ void make_sources(
     crypto::public_key tx_pub_key = crypto::public_key{};
 		epee::string_tools::hex_to_pod(outputs[out_index].tx_pub_key, tx_pub_key);
 		src.real_out_tx_key = tx_pub_key;
-		src.real_out_additional_tx_keys = cryptonote::get_additional_tx_pub_keys_from_extra(extra); // they are empty! perhaps remove this function
-		// src.real_out_additional_tx_keys = {}; // USE THIS?
+		src.real_out_additional_tx_keys = {};
 		src.real_output = real_output_index;
 		uint64_t internal_output_index = outputs[out_index].index;
 		src.real_output_in_tx_index = internal_output_index;
@@ -180,33 +179,33 @@ string monero_core::createTx(const string &args_string) {
   istringstream ss(args_string);
   boost::property_tree::read_json(ss, json_root);
 
-	string sec_viewKey_string = json_root.get<string>("sec_viewKey_string");
-	string sec_spendKey_string = json_root.get<string>("sec_spendKey_string");
+	string sec_viewKey_string = json_root.get<string>("secretViewKey");
+	string sec_spendKey_string = json_root.get<string>("secretSpendKey");
 
   const cryptonote::network_type nettype = cryptonote::network_type::MAINNET;
   cryptonote::account_keys account_keys;
 
   crypto::secret_key sec_viewKey;
-  if (!epee::string_tools::hex_to_pod(sec_viewKey_string, sec_viewKey)) throw std::runtime_error("Invalid sec_viewKey_string");
+  if (!epee::string_tools::hex_to_pod(sec_viewKey_string, sec_viewKey)) throw std::runtime_error("Invalid secretViewKey");
   account_keys.m_view_secret_key = sec_viewKey;
 
   crypto::secret_key sec_spendKey;
-  if (!epee::string_tools::hex_to_pod(sec_spendKey_string, sec_spendKey)) throw std::runtime_error("Invalid sec_spendKey_string");
+  if (!epee::string_tools::hex_to_pod(sec_spendKey_string, sec_spendKey)) throw std::runtime_error("Invalid secretSpendKey");
   account_keys.m_spend_secret_key = sec_spendKey;
 
   vector<uint8_t> extra;
 
 	unordered_map<crypto::public_key, cryptonote::subaddress_index> subaddresses;
-  parse_from_addresses(json_root, nettype, account_keys, subaddresses);
+  parse_addresses(json_root, nettype, account_keys, subaddresses);
 
   vector<SpendableOutput> outputs;
   parse_inputs(json_root, outputs);
 
-  vector<RandomAmountOutputs> mix_outs;
-  parse_mixins(json_root, mix_outs);
+  vector<RandomAmountOutputs> mixins;
+  parse_mixins(json_root, mixins);
 
   vector<cryptonote::tx_source_entry> sources;
-  make_sources(json_root, outputs, mix_outs, extra, account_keys, sources);
+  make_sources(json_root, outputs, mixins, account_keys, sources);
 
   vector<cryptonote::tx_destination_entry> splitted_dsts;
   cryptonote::tx_destination_entry change_dst = cryptonote::tx_destination_entry{};

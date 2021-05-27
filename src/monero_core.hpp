@@ -17,19 +17,15 @@ namespace monero_core {
   struct SpendableOutput {
     uint64_t amount;
     std::string public_key;
-    std::string rct;
+    std::string out_pk;
     uint64_t global_index;
     uint64_t index;
     std::string tx_pub_key;
   };
-  struct Destination {
-    uint64_t amount;
-    std::string address;
-  };
   struct RandomAmountOutput {
     uint64_t global_index;
     std::string public_key;
-    std::string rct;
+    std::string out_pk;
   };
   struct RandomAmountOutputs {
     uint64_t amount;
