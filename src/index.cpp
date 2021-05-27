@@ -1,14 +1,19 @@
 #include <stdio.h>
 #include <emscripten/bind.h>
-#include <emscripten.h>
+#include "monero_core.hpp"
 
 using namespace std;
 
-string hello(const string& args_string) {
-  printf("args_string: %s\n", args_string.c_str());
-  return args_string.c_str();
+string createTx(const string& args_string) {
+  string result = monero_core::createTx(args_string);
+  return result.c_str();
+}
+
+string getExceptionMessage(intptr_t exceptionPtr) {
+  return string(reinterpret_cast<exception *>(exceptionPtr)->what());
 }
 
 EMSCRIPTEN_BINDINGS(my_module) {
-  emscripten::function("hello", &hello);
+  emscripten::function("createTx", &createTx);
+  emscripten::function("getExceptionMessage", &getExceptionMessage);
 }

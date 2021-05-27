@@ -13,37 +13,14 @@ else()
   set(DEBUG_DWARF "-g -gseparate-dwarf=MoneroCoreJS.debug.wasm")
 endif()
 
-set(MONERO_CORE_CPP_SRC "src/submodules/mymonero-core-cpp/src")
-set(MONERO_SRC "src/submodules/mymonero-core-cpp/contrib/monero-core-custom")
+set(MONERO_SRC "src/monero-core-custom")
 set(BOOST_DIR ${CMAKE_SOURCE_DIR}/build/boost)
 
 set(
   SRC_FILES
   src/index.cpp
-  src/emscr_async_send_bridge.hpp
-  src/emscr_async_send_bridge.cpp
-  ${MONERO_CORE_CPP_SRC}/monero_address_utils.hpp
-  ${MONERO_CORE_CPP_SRC}/monero_address_utils.cpp
-  ${MONERO_CORE_CPP_SRC}/monero_paymentID_utils.hpp
-  ${MONERO_CORE_CPP_SRC}/monero_paymentID_utils.cpp
-  ${MONERO_CORE_CPP_SRC}/monero_key_image_utils.hpp
-  ${MONERO_CORE_CPP_SRC}/monero_key_image_utils.cpp
-  ${MONERO_CORE_CPP_SRC}/monero_fee_utils.hpp
-  ${MONERO_CORE_CPP_SRC}/monero_fee_utils.cpp
-  ${MONERO_CORE_CPP_SRC}/monero_transfer_utils.hpp
-  ${MONERO_CORE_CPP_SRC}/monero_transfer_utils.cpp
-  ${MONERO_CORE_CPP_SRC}/monero_fork_rules.hpp
-  ${MONERO_CORE_CPP_SRC}/monero_fork_rules.cpp
-  ${MONERO_CORE_CPP_SRC}/monero_wallet_utils.hpp
-  ${MONERO_CORE_CPP_SRC}/monero_wallet_utils.cpp
-  ${MONERO_CORE_CPP_SRC}/serial_bridge_index.hpp
-  ${MONERO_CORE_CPP_SRC}/serial_bridge_index.cpp
-  ${MONERO_CORE_CPP_SRC}/monero_send_routine.hpp
-  ${MONERO_CORE_CPP_SRC}/monero_send_routine.cpp
-  ${MONERO_CORE_CPP_SRC}/serial_bridge_utils.hpp
-  ${MONERO_CORE_CPP_SRC}/serial_bridge_utils.cpp
-  ${MONERO_CORE_CPP_SRC}/tools__ret_vals.hpp
-  ${MONERO_CORE_CPP_SRC}/tools__ret_vals.cpp
+  src/monero_core.hpp
+  src/monero_core.cpp
   ${MONERO_SRC}/cryptonote_basic/cryptonote_basic_impl.cpp
   ${MONERO_SRC}/cryptonote_basic/account.cpp
   ${MONERO_SRC}/cryptonote_basic/cryptonote_format_utils.cpp
@@ -98,7 +75,6 @@ set(
   -s ASSERTIONS=2 \
   -s PRECISE_F32=1 \
   -s DISABLE_EXCEPTION_CATCHING=0 \
-  -s EXCEPTION_DEBUG=1 \
   -s DEMANGLE_SUPPORT=1 \
   -s NO_DYNAMIC_EXECUTION=1 \
   -s NODEJS_CATCH_EXIT=0 \
@@ -117,7 +93,6 @@ add_executable(MoneroCoreJS ${SRC_FILES})
 include_directories(MoneroCoreJS
   "build/boost/include"
   "src"
-  ${MONERO_CORE_CPP_SRC}
   ${MONERO_SRC}
   "${MONERO_SRC}/epee/include"
   "${MONERO_SRC}/common"

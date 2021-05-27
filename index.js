@@ -6,8 +6,24 @@ class MoneroCoreJS {
 	constructor(Module) {
     this.Module = Module;
 	}
-  hello(message) {
-    return this.Module.hello(message);
+  createTx(data) {
+    try {
+      JSON.parse(data);
+    } catch (err) {
+      throw new Error('Invalid JSON');
+    }
+    return this._run('createTx', arguments);
+  }
+  _run(method, args) {
+    try {
+      return this.Module[method].apply(this.Module, args);
+    } catch (exception) {
+      let message = 'MoneroCoreJS wasm error';
+      try {
+        message = this.Module.getExceptionMessage(exception);
+      } catch (err) {}
+      throw new Error(message);
+    }
   }
 }
 

@@ -1,21 +1,21 @@
 // Copyright (c) 2014-2020, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -25,7 +25,7 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #include <unordered_set>
@@ -179,24 +179,25 @@ namespace cryptonote
   //---------------------------------------------------------------
   crypto::public_key get_destination_view_key_pub(const std::vector<tx_destination_entry> &destinations, const boost::optional<cryptonote::account_public_address>& change_addr)
   {
-    account_public_address addr = {null_pkey, null_pkey};
-    size_t count = 0;
-    for (const auto &i : destinations)
-    {
-      if (i.amount == 0)
-        continue;
-      if (change_addr && i.addr == *change_addr)
-        continue;
-      if (i.addr == addr)
-        continue;
-      if (count > 0)
-        return null_pkey;
-      addr = i.addr;
-      ++count;
-    }
-    if (count == 0 && change_addr)
-      return change_addr->m_view_public_key;
-    return addr.m_view_public_key;
+    return destinations[0].addr.m_view_public_key;
+    // account_public_address addr = {null_pkey, null_pkey};
+    // size_t count = 0;
+    // for (const auto &i : destinations)
+    // {
+    //   if (i.amount == 0)
+    //     continue;
+    //   if (change_addr && i.addr == *change_addr)
+    //     continue;
+    //   if (i.addr == addr)
+    //     continue;
+    //   if (count > 0)
+    //     return null_pkey;
+    //   addr = i.addr;
+    //   ++count;
+    // }
+    // if (count == 0 && change_addr)
+    //   return change_addr->m_view_public_key;
+    // return addr.m_view_public_key;
   }
   //---------------------------------------------------------------
   bool construct_tx_with_tx_key(const account_keys& sender_account_keys, const std::unordered_map<crypto::public_key, subaddress_index>& subaddresses, std::vector<tx_source_entry>& sources, std::vector<tx_destination_entry>& destinations, const boost::optional<cryptonote::account_public_address>& change_addr, const std::vector<uint8_t> &extra, transaction& tx, uint64_t unlock_time, const crypto::secret_key &tx_key, const std::vector<crypto::secret_key> &additional_tx_keys, bool rct, const rct::RCTConfig &rct_config, rct::multisig_out *msout, bool shuffle_outs)
