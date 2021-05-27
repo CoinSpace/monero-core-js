@@ -26,7 +26,7 @@
   },
   "files": [
     "index.js",
-    "build/MyMoneroCoreCpp_WASM",
-    "build/MyMoneroCoreCpp_WASM.wasm"
+    "build/MoneroCoreJS.js",
+    "build/MoneroCoreJS.wasm"
   ]
 }
