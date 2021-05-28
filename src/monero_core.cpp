@@ -26,7 +26,6 @@ void parse_addresses(
 
 void parse_destinations(
   boost::property_tree::ptree& json_root,
-  cryptonote::tx_destination_entry& change_dst,
   vector<uint8_t>& extra,
   const cryptonote::network_type& nettype,
   vector<cryptonote::tx_destination_entry>& splitted_dsts
@@ -49,9 +48,6 @@ void parse_destinations(
       crypto::hash8 payment_id = destination_info.has_payment_id ? destination_info.payment_id : crypto::null_hash8;
       cryptonote::set_encrypted_payment_id_to_tx_extra_nonce(extra_nonce, payment_id);
       cryptonote::add_extra_nonce_to_tx_extra(extra, extra_nonce);
-    }
-    if (i == (size - 1)) { // change
-      change_dst = std::move(destination);
     }
     i++;
 	}
@@ -208,14 +204,15 @@ string monero_core::createTx(const string &args_string) {
   make_sources(json_root, outputs, mixins, account_keys, sources);
 
   vector<cryptonote::tx_destination_entry> splitted_dsts;
-  cryptonote::tx_destination_entry change_dst = cryptonote::tx_destination_entry{};
-  parse_destinations(json_root, change_dst, extra, nettype, splitted_dsts);
+  parse_destinations(json_root, extra, nettype, splitted_dsts);
 
   const rct::RCTConfig rct_config = get_rct_config();
   uint64_t unlock_time = 0;
 	cryptonote::transaction tx;
 	crypto::secret_key tx_key;
 	vector<crypto::secret_key> additional_tx_keys;
+
+  cryptonote::tx_destination_entry change_dst = cryptonote::tx_destination_entry{}; // null
 
   bool r = cryptonote::construct_tx_and_get_tx_key(
 		account_keys, subaddresses,
