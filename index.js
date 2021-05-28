@@ -7,12 +7,7 @@ class MoneroCoreJS {
     this.Module = Module;
 	}
   createTx(data) {
-    try {
-      JSON.parse(data);
-    } catch (err) {
-      throw new Error('Invalid JSON');
-    }
-    return this._run('createTx', arguments);
+    return this._run('createTx', [JSON.stringify(data)]);
   }
   _run(method, args) {
     try {

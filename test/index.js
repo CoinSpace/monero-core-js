@@ -156,7 +156,7 @@ describe('index', () => {
            }
         ]
       }
-      const rawTx = moneroCoreJs.createTx(JSON.stringify(data));
+      const rawTx = moneroCoreJs.createTx(data);
       assert.strictEqual(typeof rawTx, 'string');
       assert.ok(rawTx.length > 0);
     });
