@@ -27,27 +27,15 @@ set(
   ${MONERO_SRC}/crypto/crypto.cpp
   ${MONERO_SRC}/crypto/hash.c
   ${MONERO_SRC}/crypto/slow-hash-dummied.cpp
-  ${MONERO_SRC}/crypto/oaes_lib.c
   ${MONERO_SRC}/crypto/crypto-ops.c
   ${MONERO_SRC}/crypto/crypto-ops-data.c
   ${MONERO_SRC}/crypto/keccak.c
   ${MONERO_SRC}/crypto/chacha.c
   ${MONERO_SRC}/crypto/random.c
-  ${MONERO_SRC}/crypto/aesb.c
   ${MONERO_SRC}/crypto/tree-hash.c
-  ${MONERO_SRC}/crypto/hash-extra-blake.c
-  ${MONERO_SRC}/crypto/blake256.c
-  ${MONERO_SRC}/crypto/hash-extra-groestl.c
-  ${MONERO_SRC}/crypto/hash-extra-jh.c
-  ${MONERO_SRC}/crypto/hash-extra-skein.c
-  ${MONERO_SRC}/crypto/groestl.c
-  ${MONERO_SRC}/crypto/jh.c
-  ${MONERO_SRC}/crypto/skein.c
   ${MONERO_SRC}/cryptonote_core/cryptonote_tx_utils.cpp
   ${MONERO_SRC}/common/base58.cpp
-  ${MONERO_SRC}/common/threadpool.cpp
   ${MONERO_SRC}/common/aligned.c
-  ${MONERO_SRC}/common/util.cpp
   ${MONERO_SRC}/epee/src/hex.cpp
   ${MONERO_SRC}/epee/src/string_tools.cpp
   ${MONERO_SRC}/epee/src/memwipe.c
@@ -62,7 +50,6 @@ set(
   ${MONERO_SRC}/ringct/bulletproofs.cc
   ${MONERO_SRC}/ringct/multiexp.cc
   ${MONERO_SRC}/mnemonics/electrum-words.cpp
-  ${MONERO_SRC}/vtlogger/logger.cpp
   ${MONERO_SRC}/contrib/libsodium/src/crypto_verify/verify.c
 )
 
@@ -71,6 +58,7 @@ set(
   "-Wall -std=c++11 \
   --bind \
   -s MODULARIZE=1 \
+  -s ERROR_ON_UNDEFINED_SYMBOLS=0 \
   -s EXPORT_NAME=MoneroCoreJS \
   -s ASSERTIONS=2 \
   -s PRECISE_F32=1 \

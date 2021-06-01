@@ -151,8 +151,7 @@ async function run() {
        }
     ]
   }
-  const args_str = JSON.stringify(data);
-  console.log(moneroCoreJs.createTx(args_str));
+  console.log(moneroCoreJs.createTx(data));
 }
 
 run();
