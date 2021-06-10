@@ -21,6 +21,7 @@ namespace monero_core {
     uint64_t global_index;
     uint64_t index;
     std::string tx_pub_key;
+    uint64_t rct_type;
   };
   struct RandomAmountOutput {
     uint64_t global_index;

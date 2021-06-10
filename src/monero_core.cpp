@@ -64,6 +64,7 @@ void parse_inputs(boost::property_tree::ptree& json_root, vector<SpendableOutput
 		out.global_index = stoull(output_desc.second.get<string>("globalIndex"));
 		out.index = stoull(output_desc.second.get<string>("index"));
 		out.tx_pub_key = output_desc.second.get<string>("txPubKey");
+		out.rct_type = stoull(output_desc.second.get<string>("rctType"));
 		outputs.push_back(std::move(out));
 	}
 }
@@ -147,13 +148,16 @@ void make_sources(
 		src.real_output = real_output_index;
 		uint64_t internal_output_index = outputs[out_index].index;
 		src.real_output_in_tx_index = internal_output_index;
-    src.rct = true;
 
-    crypto::key_derivation derivation;
-    crypto::generate_key_derivation(tx_pub_key, account_keys.m_view_secret_key, derivation);
-    crypto::secret_key scalar;
-    crypto::derivation_to_scalar(derivation, internal_output_index, scalar);
-    src.mask = rct::genCommitmentMask(rct::sk2rct(scalar));
+    if (outputs[out_index].rct_type == rct::RCTTypeNull) {
+      src.mask = rct::identity();
+    } else {
+      crypto::key_derivation derivation;
+      crypto::generate_key_derivation(tx_pub_key, account_keys.m_view_secret_key, derivation);
+      crypto::secret_key scalar;
+      crypto::derivation_to_scalar(derivation, internal_output_index, scalar);
+      src.mask = rct::genCommitmentMask(rct::sk2rct(scalar));
+    }
 		src.multisig_kLRki = rct::multisig_kLRki({rct::zero(), rct::zero(), rct::zero(), rct::zero()});
 		sources.push_back(src);
 	}

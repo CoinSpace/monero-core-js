@@ -7,6 +7,7 @@ async function run() {
   const data = {
     "sources":[
       {
+        rctType: 5,
         amount: '1000000000000',
         targetKey: '6b8a8b363b7bee55392c4c42ef98b4b8930fa895cc7bb6598b691f0f25499a48',
         outPk: '063a8c5ee7f69bcd6ddf86e4e303c962562a18ce467316b90fb0881d7c7c5313',
