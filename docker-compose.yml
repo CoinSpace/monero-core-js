@@ -6,6 +6,7 @@ services:
     command: /bin/bash
     environment:
       EMSCRIPTEN: /emsdk/upstream/emscripten
+      BUILD: debug
     working_dir: /app
     volumes:
       - code:/app

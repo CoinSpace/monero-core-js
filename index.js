@@ -1,7 +1,5 @@
 'use strict';
 
-const createModule = require('./build/MoneroCoreJS');
-
 class MoneroCoreJS {
 	constructor(Module) {
     this.Module = Module;
@@ -22,7 +20,13 @@ class MoneroCoreJS {
   }
 }
 
-function init(wasmPath = '') {
+async function init(wasmPath, forceAsm) {
+  let createModule;
+  if (typeof WebAssembly === 'object' && !forceAsm) {
+    createModule = require('./build/MoneroCoreJS');
+  } else {
+    createModule = (await import('./build/MoneroCoreJS.asm.js')).default;
+  }
   const options = {};
   if (wasmPath) {
     options.locateFile = () => wasmPath;

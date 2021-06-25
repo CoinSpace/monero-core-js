@@ -11,8 +11,9 @@
   },
   "scripts": {
     "serve": "webpack serve --config webpack.config.js",
-    "serve:wasm": "nodemon --watch ./src --ext cpp,hpp,h,c --exec 'docker exec -i monero-core-js_emscripten_1 ./bin/build-emcpp.sh'",
-    "test": "mocha test --recursive --reporter spec --timeout 5000",
+    "serve:wasm": "nodemon --watch ./src --ext cpp,hpp,h,c --exec 'docker exec -e WASM=1 -i monero-core-js_emscripten_1 ./bin/build-emcpp.sh'",
+    "serve:asm": "nodemon --watch ./src --ext cpp,hpp,h,c --exec 'docker exec -i monero-core-js_emscripten_1 ./bin/build-emcpp.sh'",
+    "test": "mocha test --recursive --reporter spec --timeout 60000",
     "oldtest": "mocha -- ./tests/ --timeout 30000"
   },
   "dependencies": {},
@@ -27,6 +28,7 @@
   "files": [
     "index.js",
     "build/MoneroCoreJS.js",
+    "build/MoneroCoreJS.asm.js",
     "build/MoneroCoreJS.wasm"
   ]
 }

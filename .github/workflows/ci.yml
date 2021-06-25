@@ -18,17 +18,26 @@ jobs:
           docker run --rm -i \
             --env EMSCRIPTEN=/emsdk/upstream/emscripten \
             -v $(pwd):/src emscripten/emsdk:2.0.20 ./bin/build-boost-emscripten.sh
-      - name: Build monero-core-js
+      - name: Build monero-core-js (wasm)
         run: |
           docker run --rm -i \
             --env EMSCRIPTEN=/emsdk/upstream/emscripten \
             --env BUILD=production \
+            --env WASM=1 \
+            -v $(pwd):/src emscripten/emsdk:2.0.20 ./bin/build-emcpp.sh
+      - name: Build monero-core-js (asm)
+        run: |
+          docker run --rm -i \
+            --env EMSCRIPTEN=/emsdk/upstream/emscripten \
+            --env BUILD=production \
+            --env WASM=0 \
             -v $(pwd):/src emscripten/emsdk:2.0.20 ./bin/build-emcpp.sh
       - uses: actions/upload-artifact@v2
         with:
           name: wasm
           path: |
             build/MoneroCoreJS.js
+            build/MoneroCoreJS.asm.js
             build/MoneroCoreJS.wasm
 
   test:

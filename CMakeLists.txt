@@ -9,8 +9,35 @@ if($ENV{BUILD} MATCHES "production")
   set(OPTIMIZATION "-Oz")
 else()
   SET(CMAKE_BUILD_TYPE "Debug")
-  set(OPTIMIZATION "-O0")
-  set(DEBUG_DWARF "-g -gseparate-dwarf=MoneroCoreJS.debug.wasm")
+endif()
+
+if($ENV{WASM} MATCHES "1")
+  message(STATUS "WASM: 1")
+  set(SUFFIX ".js")
+  set(
+    EXTRA_FLAGS
+    "-s WASM=1 \
+    -s ALLOW_MEMORY_GROWTH=1 \
+    "
+  )
+  if($ENV{BUILD} MATCHES "debug")
+    set(OPTIMIZATION "-O0")
+    set(DEBUG_DWARF "-g -gseparate-dwarf=MoneroCoreJS.debug.wasm")
+  endif()
+else()
+  message(STATUS "WASM: 0")
+  set(SUFFIX ".asm.js")
+  set(
+    EXTRA_FLAGS
+    "-s WASM=0 \
+    -s AGGRESSIVE_VARIABLE_ELIMINATION=1 \
+    --memory-init-file 0 \
+    -s ALLOW_MEMORY_GROWTH=0 \
+    "
+  )
+  if($ENV{BUILD} MATCHES "debug")
+    set(OPTIMIZATION "-O1")
+  endif()
 endif()
 
 set(MONERO_SRC "src/monero-core-custom")
@@ -67,8 +94,7 @@ set(
   -s NO_DYNAMIC_EXECUTION=1 \
   -s NODEJS_CATCH_EXIT=0 \
   -s EXPORTED_RUNTIME_METHODS='[\"UTF8ToString\"]' \
-  -s WASM=1 \
-  -s ALLOW_MEMORY_GROWTH=1 \
+  ${EXTRA_FLAGS} \
   ${OPTIMIZATION} ${DEBUG_DWARF} \
   "
 )
@@ -98,7 +124,7 @@ include_directories(MoneroCoreJS
 )
 
 set_target_properties(MoneroCoreJS PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS}")
-set_target_properties(MoneroCoreJS PROPERTIES SUFFIX ".js")
+set_target_properties(MoneroCoreJS PROPERTIES SUFFIX "${SUFFIX}")
 
 add_library(boost_chrono STATIC IMPORTED)
 set_target_properties(boost_chrono PROPERTIES IMPORTED_LOCATION ${BOOST_DIR}/lib/libboost_chrono.a)
