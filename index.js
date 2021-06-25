@@ -23,7 +23,7 @@ class MoneroCoreJS {
 async function init(wasmPath, forceAsm) {
   let createModule;
   if (typeof WebAssembly === 'object' && !forceAsm) {
-    createModule = require('./build/MoneroCoreJS');
+    createModule = (await import('./build/MoneroCoreJS.js')).default;
   } else {
     createModule = (await import('./build/MoneroCoreJS.asm.js')).default;
   }
