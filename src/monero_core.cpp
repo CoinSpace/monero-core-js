@@ -43,9 +43,9 @@ void parse_destinations(
     destination.amount = stoull(item.second.get<string>("amount"));
     destination.is_subaddress = destination_info.is_subaddress;
     splitted_dsts.push_back(destination);
-    if (i == 0) { // destination
+    if (i == 0 && destination_info.has_payment_id) { // destination
       string extra_nonce;
-      crypto::hash8 payment_id = destination_info.has_payment_id ? destination_info.payment_id : crypto::null_hash8;
+      crypto::hash8 payment_id = destination_info.payment_id;
       cryptonote::set_encrypted_payment_id_to_tx_extra_nonce(extra_nonce, payment_id);
       cryptonote::add_extra_nonce_to_tx_extra(extra, extra_nonce);
     }

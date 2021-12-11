@@ -9,7 +9,7 @@ module.exports = {
     contentBase: path.join(__dirname, 'build'),
     hot: true,
     host: '0.0.0.0',
-    port: 5000,
+    port: 8088,
   },
   output: {
     filename: 'bundle.js',
