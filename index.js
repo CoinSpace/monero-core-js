@@ -23,9 +23,15 @@ class MoneroCoreJS {
 async function init(wasmPath, forceAsm) {
   let createModule;
   if (typeof WebAssembly === 'object' && !forceAsm) {
-    createModule = (await import('./build/MoneroCoreJS.js')).default;
+    createModule = (await import(
+      /* webpackChunkName: '@coinspace/monero-core-js-wasm' */
+      './build/MoneroCoreJS.js'
+    )).default;
   } else {
-    createModule = (await import('./build/MoneroCoreJS.asm.js')).default;
+    createModule = (await import(
+      /* webpackChunkName: '@coinspace/monero-core-js-asm' */
+      './build/MoneroCoreJS.asm.js'
+      )).default;
   }
   const options = {};
   if (wasmPath) {
