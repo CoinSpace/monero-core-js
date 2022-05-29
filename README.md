@@ -1,7 +1,7 @@
 # Monero Core JS
 
 [![Build](https://github.com/CoinSpace/monero-core-js/actions/workflows/ci.yml/badge.svg)](https://github.com/CoinSpace/monero-core-js/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/github/v/tag/CoinSpace/monero-core-js?label=version)](https://github.com/CoinSpace/monero-core-js/releases)
+[![Version](https://img.shields.io/github/v/tag/CoinSpace/monero-core-js?label=version)](https://github.com/CoinSpace/monero-core-js/tags)
 [![License](https://img.shields.io/github/license/CoinSpace/monero-core-js?color=blue)](https://github.com/CoinSpace/monero-core-js/blob/master/LICENSE)
 
 JS library for creating Monero transactions.
