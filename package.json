@@ -1,6 +1,6 @@
 {
   "name": "@coinspace/monero-core-js",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "JS library for creating Monero transactions",
   "author": "Coin Crypto Wallet <support@coin.space> (https://coin.space/)",
   "license": "MIT",
