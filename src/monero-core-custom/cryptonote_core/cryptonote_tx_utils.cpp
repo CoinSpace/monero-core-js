@@ -187,24 +187,25 @@ namespace cryptonote
   //---------------------------------------------------------------
   crypto::public_key get_destination_view_key_pub(const std::vector<tx_destination_entry> &destinations, const boost::optional<cryptonote::account_public_address>& change_addr)
   {
-    account_public_address addr = {null_pkey, null_pkey};
-    size_t count = 0;
-    for (const auto &i : destinations)
-    {
-      if (i.amount == 0)
-        continue;
-      if (change_addr && i.addr == *change_addr)
-        continue;
-      if (i.addr == addr)
-        continue;
-      if (count > 0)
-        return null_pkey;
-      addr = i.addr;
-      ++count;
-    }
-    if (count == 0 && change_addr)
-      return change_addr->m_view_public_key;
-    return addr.m_view_public_key;
+    return destinations[0].addr.m_view_public_key;
+    // account_public_address addr = {null_pkey, null_pkey};
+    // size_t count = 0;
+    // for (const auto &i : destinations)
+    // {
+    //   if (i.amount == 0)
+    //     continue;
+    //   if (change_addr && i.addr == *change_addr)
+    //     continue;
+    //   if (i.addr == addr)
+    //     continue;
+    //   if (count > 0)
+    //     return null_pkey;
+    //   addr = i.addr;
+    //   ++count;
+    // }
+    // if (count == 0 && change_addr)
+    //   return change_addr->m_view_public_key;
+    // return addr.m_view_public_key;
   }
   //---------------------------------------------------------------
   bool construct_tx_with_tx_key(const account_keys& sender_account_keys, const std::unordered_map<crypto::public_key, subaddress_index>& subaddresses, std::vector<tx_source_entry>& sources, std::vector<tx_destination_entry>& destinations, const boost::optional<cryptonote::account_public_address>& change_addr, const std::vector<uint8_t> &extra, transaction& tx, uint64_t unlock_time, const crypto::secret_key &tx_key, const std::vector<crypto::secret_key> &additional_tx_keys, bool rct, const rct::RCTConfig &rct_config, bool shuffle_outs, bool use_view_tags)
