@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2020, The Monero Project
+// Copyright (c) 2014-2022, The Monero Project
 // 
 // All rights reserved.
 // 
@@ -123,13 +123,17 @@ namespace crypto {
   void random32_unbiased(unsigned char *bytes)
   {
     // l = 2^252 + 27742317777372353535851937790883648493.
-    // it fits 15 in 32 bytes
+    // l fits 15 times in 32 bytes (iow, 15 l is the highest multiple of l that fits in 32 bytes)
     static const unsigned char limit[32] = { 0xe3, 0x6a, 0x67, 0x72, 0x8b, 0xce, 0x13, 0x29, 0x8f, 0x30, 0x82, 0x8c, 0x0b, 0xa4, 0x10, 0x39, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0 };
-    do
+    while(1)
     {
       generate_random_bytes_thread_safe(32, bytes);
-    } while (!sc_isnonzero(bytes) && !less32(bytes, limit)); // should be good about 15/16 of the time
-    sc_reduce32(bytes);
+      if (!less32(bytes, limit))
+        continue;
+      sc_reduce32(bytes);
+      if (sc_isnonzero(bytes))
+        break;
+    }
   }
   /* generate a random 32-byte (256-bit) integer and copy it to res */
   static inline void random_scalar(ec_scalar &res) {
@@ -744,5 +748,29 @@ POP_WARNINGS
     hash_to_scalar(buf.get(), rs_comm_size(pubs_count), h);
     sc_sub(&h, &h, &sum);
     return sc_isnonzero(&h) == 0;
+  }
+
+  void crypto_ops::derive_view_tag(const key_derivation &derivation, size_t output_index, view_tag &view_tag) {
+    #pragma pack(push, 1)
+    struct {
+      char salt[8]; // view tag domain-separator
+      key_derivation derivation;
+      char output_index[(sizeof(size_t) * 8 + 6) / 7];
+    } buf;
+    #pragma pack(pop)
+
+    char *end = buf.output_index;
+    memcpy(buf.salt, "view_tag", 8); // leave off null terminator
+    buf.derivation = derivation;
+    tools::write_varint(end, output_index);
+    assert(end <= buf.output_index + sizeof buf.output_index);
+
+    // view_tag_full = H[salt|derivation|output_index]
+    hash view_tag_full;
+    cn_fast_hash(&buf, end - reinterpret_cast<char *>(&buf), view_tag_full);
+
+    // only need a slice of view_tag_full to realize optimal perf/space efficiency
+    static_assert(sizeof(crypto::view_tag) <= sizeof(view_tag_full), "view tag should not be larger than hash result");
+    memcpy(&view_tag, &view_tag_full, sizeof(crypto::view_tag));
   }
 }

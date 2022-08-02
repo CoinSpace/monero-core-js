@@ -51,6 +51,7 @@ set(
   ${MONERO_SRC}/cryptonote_basic/cryptonote_basic_impl.cpp
   ${MONERO_SRC}/cryptonote_basic/account.cpp
   ${MONERO_SRC}/cryptonote_basic/cryptonote_format_utils.cpp
+  ${MONERO_SRC}/cryptonote_basic/cryptonote_format_utils_basic.cpp
   ${MONERO_SRC}/crypto/crypto.cpp
   ${MONERO_SRC}/crypto/hash.c
   ${MONERO_SRC}/crypto/slow-hash-dummied.cpp
@@ -75,6 +76,7 @@ set(
   ${MONERO_SRC}/ringct/rctCryptoOps.c
   ${MONERO_SRC}/ringct/rctSigs.cpp
   ${MONERO_SRC}/ringct/bulletproofs.cc
+  ${MONERO_SRC}/ringct/bulletproofs_plus.cc
   ${MONERO_SRC}/ringct/multiexp.cc
   ${MONERO_SRC}/mnemonics/electrum-words.cpp
   ${MONERO_SRC}/contrib/libsodium/src/crypto_verify/verify.c
@@ -122,6 +124,8 @@ include_directories(MoneroCoreJS
   "${MONERO_SRC}/contrib/libsodium/include"
   "${MONERO_SRC}/contrib/libsodium/include/sodium"
 )
+
+add_compile_definitions(MONERO_CORE_CUSTOM)
 
 set_target_properties(MoneroCoreJS PROPERTIES LINK_FLAGS "${EMCC_LINKER_FLAGS}")
 set_target_properties(MoneroCoreJS PROPERTIES SUFFIX "${SUFFIX}")
