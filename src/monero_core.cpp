@@ -95,7 +95,7 @@ void make_sources(
   const cryptonote::account_keys& account_keys,
   vector<cryptonote::tx_source_entry>& sources
 ) {
-  const uint32_t fake_outputs_count = 10;
+  const uint32_t fake_outputs_count = 15;
   for (size_t out_index = 0; out_index < outputs.size(); out_index++) {
 		auto src = cryptonote::tx_source_entry{};
 		src.amount = outputs[out_index].amount;
@@ -165,7 +165,7 @@ void make_sources(
 
 rct::RCTConfig get_rct_config() {
   rct::RangeProofType range_proof_type = rct::RangeProofPaddedBulletproof;
-  int bp_version = 3;
+  int bp_version = 4;
   const rct::RCTConfig rct_config {
 		range_proof_type,
 		bp_version,
@@ -223,7 +223,7 @@ string monero_core::createTx(const string &args_string) {
 		sources, splitted_dsts, change_dst.addr, extra,
 		tx, unlock_time, tx_key, additional_tx_keys,
 		true, rct_config,
-		NULL
+		true
 	);
 
   if (!r) throw std::runtime_error("Error from construct_tx_and_get_tx_key");
