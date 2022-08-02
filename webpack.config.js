@@ -6,14 +6,28 @@ module.exports = {
   mode: 'development',
   devServer: {
     open: true,
-    contentBase: path.join(__dirname, 'build'),
+    allowedHosts: 'all',
+    static: {
+      directory: path.join(__dirname, 'build'),
+    },
     hot: true,
-    host: '0.0.0.0',
     port: 8088,
+    host: '0.0.0.0',
   },
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'build'),
+  },
+  module: {
+    rules: [
+      {
+        test: /MoneroCoreJS\.wasm$/i,
+        type: 'asset/resource',
+        generator: {
+          filename: '[name][ext]',
+        },
+      },
+    ],
   },
   resolve: {
     fallback: {
