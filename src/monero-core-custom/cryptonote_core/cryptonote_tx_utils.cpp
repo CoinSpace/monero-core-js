@@ -232,7 +232,7 @@ namespace cryptonote
     std::vector<tx_extra_field> tx_extra_fields;
     if (parse_tx_extra(tx.extra, tx_extra_fields))
     {
-      bool add_dummy_payment_id = true;
+      bool add_dummy_payment_id = false; // no dummy
       tx_extra_nonce extra_nonce;
       if (find_tx_extra_field_by_type(tx_extra_fields, extra_nonce))
       {
