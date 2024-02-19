@@ -11,8 +11,8 @@ JS library for creating Monero transactions.
 ```
 docker-compose build
 docker-compose up -d
-docker exec -it monero-core-js_emscripten_1 cp -r /src/build /app
-docker exec -it monero-core-js_emscripten_1 ./bin/build-emcpp.sh
+docker exec -it monero-core-js-emscripten-1 cp -r /src/build /app
+docker exec -it monero-core-js-emscripten-1 ./bin/build-emcpp.sh
 
 npm install
 npm test
