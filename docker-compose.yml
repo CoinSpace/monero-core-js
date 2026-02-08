@@ -9,12 +9,4 @@ services:
       BUILD: debug
     working_dir: /app
     volumes:
-      - code:/app
-
-volumes:
-  code: # https://github.com/docker/for-mac/issues/3677#issuecomment-620040545
-    driver: local
-    driver_opts:
-      type: nfs
-      o: addr=host.docker.internal,rw,nolock,hard,nointr
-      device: ":${PWD}"
+      - ./:/app

@@ -33,7 +33,12 @@ namespace monero_core {
     std::vector<RandomAmountOutput> outputs;
   };
 
-  std::string createTx(const std::string &args_string);
+  struct CreateTxResult {
+    std::string raw_tx;
+    std::string tx_key;
+  };
+
+  CreateTxResult createTx(const std::string &args_string);
 }
 
 #endif /* monero_core_hpp */

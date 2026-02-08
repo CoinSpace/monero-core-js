@@ -173,7 +173,7 @@ rct::RCTConfig get_rct_config() {
   return rct_config;
 }
 
-string monero_core::createTx(const string &args_string) {
+CreateTxResult monero_core::createTx(const string &args_string) {
 
   boost::property_tree::ptree json_root;
   istringstream ss(args_string);
@@ -229,6 +229,8 @@ string monero_core::createTx(const string &args_string) {
   if (!r) throw std::runtime_error("Error from construct_tx_and_get_tx_key");
   // string tx_hash_string = epee::string_tools::pod_to_hex(cryptonote::get_transaction_hash(tx));
   // printf("tx_hash_string: %s\n", tx_hash_string.c_str());
-	string signed_serialized_tx_string = epee::string_tools::buff_to_hex_nodelimer(cryptonote::tx_to_blob(tx));
-  return signed_serialized_tx_string;
+  CreateTxResult result;
+  result.raw_tx = epee::string_tools::buff_to_hex_nodelimer(cryptonote::tx_to_blob(tx));
+  result.tx_key = epee::string_tools::pod_to_hex(unwrap(unwrap(tx_key)));
+  return result;
 }

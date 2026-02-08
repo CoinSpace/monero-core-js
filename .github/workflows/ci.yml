@@ -5,12 +5,12 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Download Boost
         run: |
-          wget --progress=dot:mega https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.gz
+          wget --progress=dot:mega https://archives.boost.io/release/1.76.0/source/boost_1_76_0.tar.gz
           mkdir -p ./contrib/boost-sdk
           tar zxf 'boost_1_76_0.tar.gz' -C './contrib/boost-sdk' --strip-components=1
       - name: Build Boost
@@ -32,7 +32,7 @@ jobs:
             --env BUILD=production \
             --env WASM=0 \
             -v $(pwd):/src emscripten/emsdk:2.0.20 ./bin/build-emcpp.sh
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: wasm
           path: |
@@ -42,32 +42,32 @@ jobs:
 
   test:
     needs: build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/download-artifact@v2
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v5
         with:
           name: wasm
           path: build
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
       - run: npm ci
       - run: npm test
 
   publish:
     needs: test
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/download-artifact@v2
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v5
         with:
           name: wasm
           path: build
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
           registry-url: https://npm.pkg.github.com/
       - run: npm publish --access public
         env:
