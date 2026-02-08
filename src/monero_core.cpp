@@ -231,6 +231,12 @@ CreateTxResult monero_core::createTx(const string &args_string) {
   // printf("tx_hash_string: %s\n", tx_hash_string.c_str());
   CreateTxResult result;
   result.raw_tx = epee::string_tools::buff_to_hex_nodelimer(cryptonote::tx_to_blob(tx));
-  result.tx_key = epee::string_tools::pod_to_hex(unwrap(unwrap(tx_key)));
+
+  epee::wipeable_string s;
+  s += epee::to_hex::wipeable_string(tx_key);
+  for (size_t i = 0; i < additional_tx_keys.size(); ++i)
+    s += epee::to_hex::wipeable_string(additional_tx_keys[i]);
+  result.tx_key = std::string(s.data(), s.size());
+
   return result;
 }
